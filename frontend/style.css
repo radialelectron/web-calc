@@ -63,7 +63,7 @@ body {
   word-break: break-all;
 }
 
-.scientific-panel.hidden {
+.hidden {
   display: none;
 }
 

@@ -138,12 +138,18 @@ document.querySelectorAll(".btn").forEach((btn) => {
   });
 });
 
+function setStdOpButtonsHidden(hidden) {
+  document.querySelectorAll(".std-op").forEach((btn) => {
+    btn.classList.toggle("hidden", hidden);
+  });
+}
+
 document.getElementById("mode-standard").addEventListener("click", () => {
   currentMode = "standard";
   document.getElementById("mode-standard").classList.add("active");
   document.getElementById("mode-scientific").classList.remove("active");
   document.getElementById("scientific-panel").classList.add("hidden");
-  document.querySelector(".standard-buttons").classList.remove("hidden");
+  setStdOpButtonsHidden(false);
 });
 
 document.getElementById("mode-scientific").addEventListener("click", () => {
@@ -151,7 +157,7 @@ document.getElementById("mode-scientific").addEventListener("click", () => {
   document.getElementById("mode-scientific").classList.add("active");
   document.getElementById("mode-standard").classList.remove("active");
   document.getElementById("scientific-panel").classList.remove("hidden");
-  document.querySelector(".standard-buttons").classList.add("hidden");
+  setStdOpButtonsHidden(true);
 });
 
 // Scientific mode (WEBCALC-8) — angle mode + function/constant buttons.

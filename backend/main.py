@@ -114,7 +114,13 @@ def apply_scientific(function: str, value: float, angle_mode: str, exponent: flo
     if function == "pow":
         if exponent is None:
             raise HTTPException(status_code=400, detail="exponent is required for pow")
-        return math.pow(value, exponent)
+        try:
+            pow_result = math.pow(value, exponent)
+        except (OverflowError, ValueError):
+            raise HTTPException(status_code=400, detail="pow result is too large or undefined to compute")
+        if math.isinf(pow_result) or math.isnan(pow_result):
+            raise HTTPException(status_code=400, detail="pow result is too large or undefined to compute")
+        return pow_result
     raise HTTPException(status_code=400, detail=f"Unsupported function: {function}")
 
 

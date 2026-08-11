@@ -67,6 +67,37 @@ body {
   display: none;
 }
 
+.angle-mode {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.angle-btn {
+  flex: 1;
+  padding: 6px;
+  border: none;
+  border-radius: 8px;
+  background: #3a3b3e;
+  color: #ccc;
+  cursor: pointer;
+}
+
+.angle-btn.active {
+  background: #0a84ff;
+  color: #fff;
+}
+
+.scientific-buttons {
+  margin-bottom: 8px;
+}
+
+.btn.sci {
+  border-radius: 12px;
+  background: #4a4b4e;
+  font-size: 15px;
+}
+
 .buttons {
   display: grid;
   grid-template-columns: repeat(4, 1fr);

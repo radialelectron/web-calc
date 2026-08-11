@@ -121,3 +121,33 @@ document.getElementById("mode-scientific").addEventListener("click", () => {
   document.getElementById("scientific-panel").classList.remove("hidden");
   document.querySelector(".standard-buttons").classList.add("hidden");
 });
+
+// Scientific mode (WEBCALC-8) — angle mode + function/constant buttons.
+// Evaluation against /api/calculate/scientific is wired in WEBCALC-11.
+
+let angleMode = "deg";
+
+const CONSTANTS = { pi: Math.PI, e: Math.E };
+
+document.querySelectorAll(".angle-btn").forEach((btn) => {
+  btn.addEventListener("click", () => {
+    document.querySelectorAll(".angle-btn").forEach((b) => b.classList.remove("active"));
+    btn.classList.add("active");
+    angleMode = btn.dataset.angle;
+  });
+});
+
+document.querySelectorAll("[data-sci]").forEach((btn) => {
+  btn.addEventListener("click", () => {
+    const fn = btn.dataset.sci;
+    currentExpression = fn === "pow" ? `${currentExpression} ^ ` : `${fn}(${currentExpression})`;
+    render();
+  });
+});
+
+document.querySelectorAll("[data-const]").forEach((btn) => {
+  btn.addEventListener("click", () => {
+    currentExpression += String(CONSTANTS[btn.dataset.const]);
+    render();
+  });
+});

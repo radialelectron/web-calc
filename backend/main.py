@@ -1,8 +1,11 @@
 import math
+import time
+from collections import defaultdict
 from datetime import datetime
 
-from fastapi import Depends, FastAPI, HTTPException
+from fastapi import Depends, FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
@@ -19,6 +22,37 @@ app.add_middleware(
 )
 
 Base.metadata.create_all(bind=engine)
+
+# Basic per-IP rate limit for the unauthenticated calculate endpoints, to bound
+# resource consumption (CPU + unbounded row growth in `calculations`). An
+# in-memory sliding window is sufficient for this scope; a production
+# deployment behind multiple workers would use a shared store (e.g. Redis).
+RATE_LIMIT_WINDOW_SECONDS = 10
+RATE_LIMIT_MAX_REQUESTS = 60
+RATE_LIMITED_PATHS = {"/api/calculate", "/api/calculate/scientific"}
+
+_request_log: dict[str, list[float]] = defaultdict(list)
+
+
+@app.middleware("http")
+async def rate_limit_middleware(request: Request, call_next):
+    if request.url.path not in RATE_LIMITED_PATHS:
+        return await call_next(request)
+
+    client_ip = request.client.host if request.client else "unknown"
+    now = time.time()
+    window_start = now - RATE_LIMIT_WINDOW_SECONDS
+
+    recent = [t for t in _request_log[client_ip] if t > window_start]
+    if len(recent) >= RATE_LIMIT_MAX_REQUESTS:
+        return JSONResponse(
+            status_code=429,
+            content={"detail": "Too many requests, please slow down"},
+        )
+
+    recent.append(now)
+    _request_log[client_ip] = recent
+    return await call_next(request)
 
 
 @app.get("/api/health")

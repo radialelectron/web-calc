@@ -1,11 +1,30 @@
-// Standard Calculator — GUI shell (WEBCALC-2)
-// Handles digit/operator entry and display. Actual calculation is wired to the
-// backend API in the Frontend/API integration story (WEBCALC-5).
+// Standard Calculator — GUI shell (WEBCALC-2) + API integration (WEBCALC-5)
+
+const API_BASE = window.WEB_CALC_API_BASE || "http://localhost:8000";
 
 const expressionEl = document.getElementById("expression");
 const resultEl = document.getElementById("result");
 
 let currentExpression = "";
+
+const OPERATOR_SYMBOL_TO_API = {
+  "+": "+",
+  "-": "-",
+  x: "*",
+  "/": "/",
+};
+
+function parseExpression(expr) {
+  // Supports a single binary operation, e.g. "12 + 8" or "200 % 10"
+  const match = expr.trim().match(/^(-?\d+(\.\d+)?)\s*([+\-x/%])\s*(-?\d+(\.\d+)?)$/);
+  if (!match) return null;
+  const [, aStr, , opSymbol, bStr] = match;
+  return {
+    a: parseFloat(aStr),
+    b: parseFloat(bStr),
+    operator: opSymbol === "%" ? "%" : OPERATOR_SYMBOL_TO_API[opSymbol],
+  };
+}
 
 function render() {
   expressionEl.textContent = currentExpression;
@@ -37,9 +56,33 @@ function handlePercent() {
   render();
 }
 
-// Placeholder — replaced by a real /api/calculate call in WEBCALC-5.
-function handleEquals() {
-  resultEl.textContent = "...";
+async function handleEquals() {
+  const parsed = parseExpression(currentExpression);
+  if (!parsed) {
+    resultEl.textContent = "Error";
+    return;
+  }
+
+  try {
+    const res = await fetch(`${API_BASE}/api/calculate`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(parsed),
+    });
+
+    if (!res.ok) {
+      const body = await res.json().catch(() => ({}));
+      resultEl.textContent = body.detail ? "Error" : "Error";
+      return;
+    }
+
+    const data = await res.json();
+    resultEl.textContent = String(data.result);
+    currentExpression = String(data.result);
+    render();
+  } catch (err) {
+    resultEl.textContent = "Error";
+  }
 }
 
 const ACTIONS = {

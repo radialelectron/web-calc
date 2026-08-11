@@ -14,6 +14,24 @@ const OPERATOR_SYMBOL_TO_API = {
   "/": "/",
 };
 
+let currentMode = "standard";
+
+function parseScientificExpression(expr) {
+  const trimmed = expr.trim();
+
+  const powMatch = trimmed.match(/^(-?\d+(\.\d+)?)\s*\^\s*(-?\d+(\.\d+)?)$/);
+  if (powMatch) {
+    return { function: "pow", value: parseFloat(powMatch[1]), exponent: parseFloat(powMatch[3]) };
+  }
+
+  const fnMatch = trimmed.match(/^(sin|cos|tan|log|ln|sqrt)\((-?\d+(\.\d+)?)\)$/);
+  if (fnMatch) {
+    return { function: fnMatch[1], value: parseFloat(fnMatch[2]) };
+  }
+
+  return null;
+}
+
 function parseExpression(expr) {
   // Supports a single binary operation, e.g. "12 + 8" or "200 % 10"
   const match = expr.trim().match(/^(-?\d+(\.\d+)?)\s*([+\-x/%])\s*(-?\d+(\.\d+)?)$/);
@@ -56,23 +74,16 @@ function handlePercent() {
   render();
 }
 
-async function handleEquals() {
-  const parsed = parseExpression(currentExpression);
-  if (!parsed) {
-    resultEl.textContent = "Error";
-    return;
-  }
-
+async function submitCalculation(endpoint, payload) {
   try {
-    const res = await fetch(`${API_BASE}/api/calculate`, {
+    const res = await fetch(`${API_BASE}${endpoint}`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(parsed),
+      body: JSON.stringify(payload),
     });
 
     if (!res.ok) {
-      const body = await res.json().catch(() => ({}));
-      resultEl.textContent = body.detail ? "Error" : "Error";
+      resultEl.textContent = "Error";
       return;
     }
 
@@ -83,6 +94,25 @@ async function handleEquals() {
   } catch (err) {
     resultEl.textContent = "Error";
   }
+}
+
+async function handleEquals() {
+  if (currentMode === "scientific") {
+    const parsed = parseScientificExpression(currentExpression);
+    if (!parsed) {
+      resultEl.textContent = "Error";
+      return;
+    }
+    await submitCalculation("/api/calculate/scientific", { ...parsed, angle_mode: angleMode });
+    return;
+  }
+
+  const parsed = parseExpression(currentExpression);
+  if (!parsed) {
+    resultEl.textContent = "Error";
+    return;
+  }
+  await submitCalculation("/api/calculate", parsed);
 }
 
 const ACTIONS = {
@@ -109,6 +139,7 @@ document.querySelectorAll(".btn").forEach((btn) => {
 });
 
 document.getElementById("mode-standard").addEventListener("click", () => {
+  currentMode = "standard";
   document.getElementById("mode-standard").classList.add("active");
   document.getElementById("mode-scientific").classList.remove("active");
   document.getElementById("scientific-panel").classList.add("hidden");
@@ -116,6 +147,7 @@ document.getElementById("mode-standard").addEventListener("click", () => {
 });
 
 document.getElementById("mode-scientific").addEventListener("click", () => {
+  currentMode = "scientific";
   document.getElementById("mode-scientific").classList.add("active");
   document.getElementById("mode-standard").classList.remove("active");
   document.getElementById("scientific-panel").classList.remove("hidden");

@@ -28,7 +28,7 @@ def test_tc09_standard_calculation_e2e(page):
     page.click("[data-action='add']")
     page.click("[data-digit='8']")
     page.click("[data-action='equals']")
-    page.wait_for_function("document.getElementById('result').textContent !== '...'")
+    page.wait_for_function("document.getElementById('result').textContent !== '0'")
     assert page.inner_text("#result") == "20"
 
 
@@ -38,5 +38,5 @@ def test_tc17_scientific_calculation_e2e(page):
     page.click("[data-digit='0']")
     page.click("[data-sci='sin']")
     page.click("[data-action='equals']")
-    page.wait_for_function("document.getElementById('result').textContent !== '...'")
+    page.wait_for_function("document.getElementById('result').textContent !== '0'")
     assert page.inner_text("#result") == "1"

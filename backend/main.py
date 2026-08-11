@@ -1,3 +1,4 @@
+import math
 from datetime import datetime
 
 from fastapi import Depends, FastAPI, HTTPException
@@ -83,3 +84,47 @@ def history(limit: int = 50, db: Session = Depends(get_db)):
         .all()
     )
     return rows
+
+
+class ScientificRequest(BaseModel):
+    function: str
+    value: float
+    angle_mode: str = "deg"
+    exponent: float | None = None
+
+
+def apply_scientific(function: str, value: float, angle_mode: str, exponent: float | None) -> float:
+    if function in ("sin", "cos", "tan"):
+        angle = math.radians(value) if angle_mode == "deg" else value
+        return {"sin": math.sin, "cos": math.cos, "tan": math.tan}[function](angle)
+    if function == "log":
+        if value <= 0:
+            raise HTTPException(status_code=400, detail="log is undefined for non-positive numbers")
+        return math.log10(value)
+    if function == "ln":
+        if value <= 0:
+            raise HTTPException(status_code=400, detail="ln is undefined for non-positive numbers")
+        return math.log(value)
+    if function == "sqrt":
+        if value < 0:
+            raise HTTPException(status_code=400, detail="sqrt is undefined for negative numbers")
+        return math.sqrt(value)
+    if function == "pow":
+        if exponent is None:
+            raise HTTPException(status_code=400, detail="exponent is required for pow")
+        return math.pow(value, exponent)
+    raise HTTPException(status_code=400, detail=f"Unsupported function: {function}")
+
+
+@app.post("/api/calculate/scientific", response_model=CalculateResponse)
+def calculate_scientific(req: ScientificRequest, db: Session = Depends(get_db)):
+    result = apply_scientific(req.function, req.value, req.angle_mode, req.exponent)
+    expression = (
+        f"{req.value} ^ {req.exponent}" if req.function == "pow" else f"{req.function}({req.value})"
+    )
+
+    record = Calculation(expression=expression, result=result, mode="scientific")
+    db.add(record)
+    db.commit()
+
+    return CalculateResponse(result=result, expression=expression)

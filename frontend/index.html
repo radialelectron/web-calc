@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>WEB Calc</title>
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="calculator">
+    <div class="mode-toggle">
+      <button id="mode-standard" class="mode-btn active">Standard</button>
+      <button id="mode-scientific" class="mode-btn">Scientific</button>
+    </div>
+
+    <div class="display">
+      <div id="expression" class="expression"></div>
+      <div id="result" class="result">0</div>
+    </div>
+
+    <div id="scientific-panel" class="scientific-panel hidden">
+      <!-- populated in the Scientific Calculator GUI story -->
+    </div>
+
+    <div class="buttons standard-buttons">
+      <button class="btn fn" data-action="clear">C</button>
+      <button class="btn fn" data-action="percent">%</button>
+      <button class="btn op" data-action="divide">/</button>
+      <button class="btn op" data-action="multiply">x</button>
+
+      <button class="btn digit" data-digit="7">7</button>
+      <button class="btn digit" data-digit="8">8</button>
+      <button class="btn digit" data-digit="9">9</button>
+      <button class="btn op" data-action="subtract">-</button>
+
+      <button class="btn digit" data-digit="4">4</button>
+      <button class="btn digit" data-digit="5">5</button>
+      <button class="btn digit" data-digit="6">6</button>
+      <button class="btn op" data-action="add">+</button>
+
+      <button class="btn digit" data-digit="1">1</button>
+      <button class="btn digit" data-digit="2">2</button>
+      <button class="btn digit" data-digit="3">3</button>
+      <button class="btn eq" data-action="equals" rowspan="2">=</button>
+
+      <button class="btn digit zero" data-digit="0">0</button>
+      <button class="btn digit" data-action="decimal">.</button>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

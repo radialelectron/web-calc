@@ -12,4 +12,6 @@ class Calculation(Base):
     expression = Column(String, nullable=False)
     result = Column(Float, nullable=False)
     mode = Column(String, nullable=False, default="standard")
+    function_type = Column(String, nullable=True)
+    angle_mode = Column(String, nullable=True)
     created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))

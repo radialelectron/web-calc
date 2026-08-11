@@ -58,6 +58,8 @@ class HistoryItem(BaseModel):
     expression: str
     result: float
     mode: str
+    function_type: str | None = None
+    angle_mode: str | None = None
     created_at: datetime
 
     model_config = {"from_attributes": True}
@@ -123,7 +125,13 @@ def calculate_scientific(req: ScientificRequest, db: Session = Depends(get_db)):
         f"{req.value} ^ {req.exponent}" if req.function == "pow" else f"{req.function}({req.value})"
     )
 
-    record = Calculation(expression=expression, result=result, mode="scientific")
+    record = Calculation(
+        expression=expression,
+        result=result,
+        mode="scientific",
+        function_type=req.function,
+        angle_mode=req.angle_mode if req.function in ("sin", "cos", "tan") else None,
+    )
     db.add(record)
     db.commit()
 

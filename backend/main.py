@@ -1,13 +1,12 @@
 import math
 from datetime import datetime
 
+from database import Base, engine, get_db
 from fastapi import Depends, FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from models import Calculation
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
-
-from database import Base, engine, get_db
-from models import Calculation
 
 app = FastAPI(title="WEB Calc API")
 
@@ -80,10 +79,7 @@ def calculate(req: CalculateRequest, db: Session = Depends(get_db)):
 @app.get("/api/history", response_model=list[HistoryItem])
 def history(limit: int = 50, db: Session = Depends(get_db)):
     rows = (
-        db.query(Calculation)
-        .order_by(Calculation.created_at.desc())
-        .limit(limit)
-        .all()
+        db.query(Calculation).order_by(Calculation.created_at.desc()).limit(limit).all()
     )
     return rows
 
@@ -95,21 +91,29 @@ class ScientificRequest(BaseModel):
     exponent: float | None = None
 
 
-def apply_scientific(function: str, value: float, angle_mode: str, exponent: float | None) -> float:
+def apply_scientific(
+    function: str, value: float, angle_mode: str, exponent: float | None
+) -> float:
     if function in ("sin", "cos", "tan"):
         angle = math.radians(value) if angle_mode == "deg" else value
         return {"sin": math.sin, "cos": math.cos, "tan": math.tan}[function](angle)
     if function == "log":
         if value <= 0:
-            raise HTTPException(status_code=400, detail="log is undefined for non-positive numbers")
+            raise HTTPException(
+                status_code=400, detail="log is undefined for non-positive numbers"
+            )
         return math.log10(value)
     if function == "ln":
         if value <= 0:
-            raise HTTPException(status_code=400, detail="ln is undefined for non-positive numbers")
+            raise HTTPException(
+                status_code=400, detail="ln is undefined for non-positive numbers"
+            )
         return math.log(value)
     if function == "sqrt":
         if value < 0:
-            raise HTTPException(status_code=400, detail="sqrt is undefined for negative numbers")
+            raise HTTPException(
+                status_code=400, detail="sqrt is undefined for negative numbers"
+            )
         return math.sqrt(value)
     if function == "pow":
         if exponent is None:
@@ -122,7 +126,9 @@ def apply_scientific(function: str, value: float, angle_mode: str, exponent: flo
 def calculate_scientific(req: ScientificRequest, db: Session = Depends(get_db)):
     result = apply_scientific(req.function, req.value, req.angle_mode, req.exponent)
     expression = (
-        f"{req.value} ^ {req.exponent}" if req.function == "pow" else f"{req.function}({req.value})"
+        f"{req.value} ^ {req.exponent}"
+        if req.function == "pow"
+        else f"{req.function}({req.value})"
     )
 
     record = Calculation(

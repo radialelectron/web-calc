@@ -1,4 +1,5 @@
 """Automates TC-11..TC-16 from the Confluence Test Cases page (scientific calculator)."""
+
 import pytest
 
 

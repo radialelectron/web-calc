@@ -70,4 +70,6 @@ def test_scientific_calculation_persisted_with_function_type(client):
     )
     res = client.get("/api/history")
     entries = res.json()
-    assert any(e["function_type"] == "cos" and e["mode"] == "scientific" for e in entries)
+    assert any(
+        e["function_type"] == "cos" and e["mode"] == "scientific" for e in entries
+    )

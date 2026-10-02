@@ -1,12 +1,12 @@
 """Automates TC-09 and TC-17 from the Confluence Test Cases page: full-stack
 E2E checks driven through the actual calculator buttons in a real browser.
 """
+
 import pathlib
 
 import pytest
-from playwright.sync_api import sync_playwright
-
 from config import BASE_URL
+from playwright.sync_api import sync_playwright
 
 FRONTEND_INDEX = pathlib.Path(__file__).resolve().parents[1] / "frontend" / "index.html"
 

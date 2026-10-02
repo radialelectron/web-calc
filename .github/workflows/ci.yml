@@ -48,6 +48,9 @@ jobs:
         pip install -r backend/requirements.txt
         pip install -r automation/requirements.txt
 
+    - name: Install Playwright browsers
+      run: playwright install --with-deps chromium
+
     - name: Start backend server
       run: |
         cd backend

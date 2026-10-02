@@ -1,4 +1,5 @@
 import math
+import os
 from datetime import datetime
 
 from database import Base, engine, get_db
@@ -10,11 +11,17 @@ from sqlalchemy.orm import Session
 
 app = FastAPI(title="WEB Calc API")
 
+# "null" is included because the frontend is loaded via file:// in local/dev/E2E
+# testing, which browsers report as Origin: null. A real deployment serving the
+# frontend over http(s) would drop "null" from this list.
+DEFAULT_ALLOWED_ORIGINS = "http://localhost:3000,http://127.0.0.1:3000,null"
+ALLOWED_ORIGINS = os.environ.get("WEB_CALC_ALLOWED_ORIGINS", DEFAULT_ALLOWED_ORIGINS).split(",")
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_origins=ALLOWED_ORIGINS,
+    allow_methods=["GET", "POST"],
+    allow_headers=["Content-Type"],
 )
 
 Base.metadata.create_all(bind=engine)

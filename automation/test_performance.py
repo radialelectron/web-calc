@@ -1,6 +1,7 @@
 """Automates TC-10 and TC-18 from the Confluence Test Cases page: basic
 concurrency/response-time smoke checks against the calculate endpoints.
 """
+
 import statistics
 import time
 from concurrent.futures import ThreadPoolExecutor
@@ -37,7 +38,9 @@ def test_tc18_scientific_calculate_under_load(api):
     with ThreadPoolExecutor(max_workers=CONCURRENCY) as pool:
         results = list(
             pool.map(
-                lambda _: _timed_request(lambda: api.calculate_scientific("sin", 45, "deg")),
+                lambda _: _timed_request(
+                    lambda: api.calculate_scientific("sin", 45, "deg")
+                ),
                 range(CONCURRENCY),
             )
         )
@@ -47,5 +50,7 @@ def test_tc18_scientific_calculate_under_load(api):
 
     assert all(s == 200 for s in statuses)
     avg_ms = statistics.mean(latencies)
-    print(f"Scientific calculate: {CONCURRENCY} concurrent requests, avg {avg_ms:.1f}ms")
+    print(
+        f"Scientific calculate: {CONCURRENCY} concurrent requests, avg {avg_ms:.1f}ms"
+    )
     assert avg_ms < 250

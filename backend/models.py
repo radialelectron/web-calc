@@ -1,8 +1,7 @@
 from datetime import datetime, timezone
 
-from sqlalchemy import Column, DateTime, Float, Integer, String
-
 from database import Base
+from sqlalchemy import Column, DateTime, Float, Integer, String
 
 
 class Calculation(Base):

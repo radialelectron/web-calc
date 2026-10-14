@@ -5,7 +5,7 @@ from database import Base, engine, get_db
 from fastapi import Depends, FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from models import Calculation
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
 
 app = FastAPI(title="WEB Calc API")
@@ -28,7 +28,9 @@ def health():
 class CalculateRequest(BaseModel):
     a: float
     b: float
-    operator: str
+    operator: str = Field(
+        description="One of + - * / %. '%' returns a * (b / 100), i.e. b percent of a."
+    )
 
 
 class CalculateResponse(BaseModel):

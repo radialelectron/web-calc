@@ -13,7 +13,7 @@ the consumer's code/tests must be read together.
 | Link | Source |
 |---|---|
 | Jira issue | WEBCALC-26 (Story under epic WEBCALC-1, created and read back in Jira; links PRs #20 and #21) |
-| Webcalc change | `backend/main.py::apply_operator`, branch `WEBCALC-4CHI-percent-operator-modulo` (name predates the real key `WEBCALC-26` |
+| Webcalc change | `backend/main.py::apply_operator`, branch `WEBCALC-4CHI-percent-operator-modulo` (branch name predates the real key WEBCALC-26) |
 | Contract change | `contracts/webcalc-openapi.json` → `CalculateRequest.operator.description` |
 | Consumer dependency | `consumers/tip-calculator/tip_calculator/webcalc_client.py::percent_of` (`operator="%"`, reads `result`), used by `tip.py::tip_for_bill`; contract ref in `tip_calculator/config.py` |
 | Other in-repo dependents | `frontend/app.js` (`handlePercent`, `parseExpression` send `%`) — not changed, behavior changes for users |
@@ -25,8 +25,12 @@ the consumer's code/tests must be read together.
 | Webcalc `tests/` | 19 pass | 20 pass (updated `%` case, added `%` by zero) |
 | Consumer `consumers/tip-calculator/tests` | 6 pass | **4 fail**, 2 pass (intentional; consumer not adapted) |
 
-Not verified: GitHub Actions runs, Jira, Xray (project has Test/Test Set/Test Execution issue types, but no Xray workflow was found or used), the
-`automation/` E2E suite (needs running server + Playwright), deployment.
+GitHub Actions (PR #21): Backend Tests pass, Automation Test Suite pass (includes updated TC-06),
+Tip Calculator Consumer Tests **fail** (expected). Lint did not run on PR #21 (its workflow only
+triggers for PRs to main/develop); PR #20 lint passed.
+
+Not verified: Xray (the Jira project has Test/Test Set/Test Execution types, but no Xray workflow
+was found or used, so nothing was published), merge, deployment, production behaviour.
 
 ## Recommended action
 Do not merge while the consumer is red. Either keep `%` as percent-of and add a new

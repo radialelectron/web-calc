@@ -29,7 +29,7 @@ class CalculateRequest(BaseModel):
     a: float
     b: float
     operator: str = Field(
-        description="One of + - * / %. '%' returns a * (b / 100), i.e. b percent of a."
+        description="One of + - * / %. '%' returns the remainder of a divided by b (modulo)."
     )
 
 
@@ -50,7 +50,9 @@ def apply_operator(a: float, b: float, operator: str) -> float:
             raise HTTPException(status_code=400, detail="Cannot divide by zero")
         return a / b
     if operator == "%":
-        return a * (b / 100)
+        if b == 0:
+            raise HTTPException(status_code=400, detail="Cannot divide by zero")
+        return a % b
     raise HTTPException(status_code=400, detail=f"Unsupported operator: {operator}")
 
 

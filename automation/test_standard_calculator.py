@@ -10,7 +10,7 @@ import pytest
         ("TC-02", 2, 5, "-", -3),
         ("TC-03", 4, 5, "*", 20),
         ("TC-04", 10, 2, "/", 5),
-        ("TC-06", 200, 10, "%", 20),
+        ("TC-06", 200, 30, "%", 20),
     ],
 )
 def test_arithmetic_operations(api, test_id, a, b, operator, expected):

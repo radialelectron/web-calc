@@ -24,12 +24,12 @@ jobs:
 
     - name: Check formatting with black
       run: |
-        black --check backend/ tests/ automation/
+        black --check backend/ tests/ automation/ contracts/ consumers/
 
     - name: Check import sorting with isort
       run: |
-        isort --check-only backend/ tests/ automation/
+        isort --check-only backend/ tests/ automation/ contracts/ consumers/
 
     - name: Lint with flake8
       run: |
-        flake8 backend/ tests/ automation/ --max-line-length=100 --extend-ignore=E203,W503,E402
+        flake8 backend/ tests/ automation/ contracts/ consumers/ --max-line-length=100 --extend-ignore=E203,W503,E402

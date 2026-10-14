@@ -30,6 +30,29 @@ jobs:
         cd backend
         pytest ../tests -v --tb=short
 
+  consumer-tests:
+    name: Tip Calculator Consumer Tests
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+        cache: 'pip'
+
+    - name: Install dependencies
+      run: |
+        pip install -r backend/requirements.txt
+        pip install -r consumers/tip-calculator/requirements.txt
+
+    - name: Run consumer contract and integration tests
+      run: |
+        cd consumers/tip-calculator
+        pytest tests -v --tb=short
+
   automation-tests:
     name: Automation Test Suite
     runs-on: ubuntu-latest

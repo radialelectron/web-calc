@@ -12,7 +12,7 @@
             "type": "number"
           },
           "operator": {
-            "description": "One of + - * / %. '%' returns a * (b / 100), i.e. b percent of a.",
+            "description": "One of + - * / %. '%' returns the remainder of a divided by b (modulo).",
             "title": "Operator",
             "type": "string"
           }

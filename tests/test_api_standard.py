@@ -8,7 +8,7 @@ import pytest
         (2, 5, "-", -3),
         (4, 5, "*", 20),
         (10, 2, "/", 5),
-        (200, 10, "%", 20),
+        (200, 30, "%", 20),
     ],
 )
 def test_arithmetic_operations(client, a, b, operator, expected):
@@ -21,6 +21,11 @@ def test_divide_by_zero_returns_400(client):
     res = client.post("/api/calculate", json={"a": 5, "b": 0, "operator": "/"})
     assert res.status_code == 400
     assert "Cannot divide by zero" in res.json()["detail"]
+
+
+def test_modulo_by_zero_returns_400(client):
+    res = client.post("/api/calculate", json={"a": 5, "b": 0, "operator": "%"})
+    assert res.status_code == 400
 
 
 def test_unsupported_operator_returns_400(client):

@@ -124,6 +124,17 @@ def export_history_json(db: Session = Depends(get_db)):
     )
 
 
+@app.delete("/api/history")
+def clear_history(confirm: bool = False, db: Session = Depends(get_db)):
+    if not confirm:
+        raise HTTPException(
+            status_code=400, detail="Pass confirm=true to clear the history"
+        )
+    deleted = db.query(Calculation).delete()
+    db.commit()
+    return {"deleted": deleted}
+
+
 class ScientificRequest(BaseModel):
     function: str
     value: float

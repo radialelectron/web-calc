@@ -1,5 +1,6 @@
 import csv
 import io
+import json
 import math
 from datetime import datetime
 
@@ -100,6 +101,26 @@ def export_history_csv(db: Session = Depends(get_db)):
         content=buffer.getvalue(),
         media_type="text/csv",
         headers={"Content-Disposition": 'attachment; filename="history.csv"'},
+    )
+
+
+@app.get("/api/history/export.json")
+def export_history_json(db: Session = Depends(get_db)):
+    rows = db.query(Calculation).order_by(Calculation.created_at.asc()).all()
+    items = [
+        {
+            "id": row.id,
+            "expression": row.expression,
+            "result": row.result,
+            "mode": row.mode,
+            "created_at": row.created_at.isoformat(),
+        }
+        for row in rows
+    ]
+    return Response(
+        content=json.dumps({"count": len(items), "items": items}, indent=2),
+        media_type="application/json",
+        headers={"Content-Disposition": 'attachment; filename="history.json"'},
     )
 
 

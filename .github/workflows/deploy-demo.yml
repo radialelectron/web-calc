@@ -1,0 +1,29 @@
+name: Deploy (demo)
+
+# Demo-only workflow. It does not deploy any server; it records a GitHub
+# Deployment under the `production` environment so release tooling has
+# deployment evidence for a version. Trigger manually from the Actions tab.
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Version being recorded as deployed (e.g. v1.1)"
+        required: true
+        default: "v1.1"
+
+permissions:
+  contents: read
+  deployments: write
+
+jobs:
+  deploy:
+    name: Record production deployment
+    runs-on: ubuntu-latest
+    environment:
+      name: production
+    steps:
+      - uses: actions/checkout@v4
+      - name: Record deployment
+        run: |
+          echo "Recording deployment of ${{ inputs.version }} at commit ${GITHUB_SHA}"
+          echo "No real infrastructure is changed by this demo workflow."

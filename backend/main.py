@@ -1,8 +1,10 @@
+import csv
+import io
 import math
 from datetime import datetime
 
 from database import Base, engine, get_db
-from fastapi import Depends, FastAPI, HTTPException
+from fastapi import Depends, FastAPI, HTTPException, Response
 from fastapi.middleware.cors import CORSMiddleware
 from models import Calculation
 from pydantic import BaseModel
@@ -82,6 +84,23 @@ def history(limit: int = 50, db: Session = Depends(get_db)):
         db.query(Calculation).order_by(Calculation.created_at.desc()).limit(limit).all()
     )
     return rows
+
+
+@app.get("/api/history/export.csv")
+def export_history_csv(db: Session = Depends(get_db)):
+    rows = db.query(Calculation).order_by(Calculation.created_at.asc()).all()
+    buffer = io.StringIO()
+    writer = csv.writer(buffer)
+    writer.writerow(["id", "expression", "result", "mode", "created_at"])
+    for row in rows:
+        writer.writerow(
+            [row.id, row.expression, row.result, row.mode, row.created_at.isoformat()]
+        )
+    return Response(
+        content=buffer.getvalue(),
+        media_type="text/csv",
+        headers={"Content-Disposition": 'attachment; filename="history.csv"'},
+    )
 
 
 class ScientificRequest(BaseModel):

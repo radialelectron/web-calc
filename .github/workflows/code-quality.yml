@@ -2,7 +2,7 @@ name: Code Quality
 
 on:
   pull_request:
-    branches: [ main, develop ]
+    branches: [ main, develop, demo/s2-unit-conversion ]
   workflow_dispatch:  # Allow manual trigger only
 
 jobs:

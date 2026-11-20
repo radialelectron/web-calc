@@ -4,6 +4,7 @@ import json
 import math
 from datetime import datetime
 
+from conversions import router as conversion_router
 from database import Base, engine, get_db
 from fastapi import Depends, FastAPI, HTTPException, Response
 from fastapi.middleware.cors import CORSMiddleware
@@ -21,6 +22,7 @@ app.add_middleware(
 )
 
 Base.metadata.create_all(bind=engine)
+app.include_router(conversion_router)
 
 
 @app.get("/api/health")
